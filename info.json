@@ -1,0 +1,11 @@
+{
+    "name": "biter_attack_waves",
+    "version": "0.1.0",
+    "title": "Biter Attack Waves",
+    "author": "Muppet9010",
+    "contact": "",
+    "homepage": "",
+    "factorio_version": "0.16",
+    "dependencies": ["base >= 0.16"],
+    "description": "Creates biter waves to attack you from twitch integration and commands"
+}
