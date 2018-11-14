@@ -17,14 +17,16 @@ Globals = {
 
 	GuiPlayerElemDict = {
 		player_index (int) = {
-			guiElemName (string) = guiElem (GuiElement)
+			"CloseOpenContents" = close function --- Reference to the function to close the current open GUI
+			guiElemName (string) = guiElem (GuiElement) --- FOR EACH GUI ELEM
 		}
 	}
 
 	BitersQueuedDict = {
 		id (int) = {
 			completed (bool)
-			quantityToDo (int)
+			targetPlayerName (string)
+			quantity (int)
 			quantityDone (int)
 			spawnLocationName (entries name in ModSettingsDict.biterWaveSpawnLocationsDict or nil)
 			spawnLocationText (string - text from request)

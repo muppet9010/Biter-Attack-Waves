@@ -2,7 +2,7 @@ Remote = {
 
 	Register = function()
 		remote.add_interface(
-			"Biter Attack Waves",
+			"BiterAttackWaves",
 			{
 				IncreaseMaxBiterWaveSize = Remote.IncreaseMaxBiterWaveSize,
 				GetBiterWaveMaxSize = Remote.GetBiterWaveMaxSize,
@@ -36,13 +36,13 @@ Remote = {
 		return BiterWave.SetCurrentBiterWaveMaxSize(amount)
 	end,
 
-	AddQueuedBiters = function(quantityInput, spawnLocationText, sponsorName)
+	AddQueuedBiters = function(streamerPlayerName, quantityInput, spawnLocationText, sponsorName)
 		quantity = tonumber(quantityInput)
 		if quantity == nil then
 			Utility.LogPrint("Remote AddQueuedBiters called with non number: " .. tostring(quantityInput))
 			return
 		end
-		return BiterWave.AddQueuedBiters(quantity, spawnLocationText, sponsorName)
+		return BiterWave.AddQueuedBiters(streamerPlayerName, quantity, spawnLocationText, sponsorName)
 	end
 	
 }

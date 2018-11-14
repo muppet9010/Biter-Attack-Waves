@@ -60,6 +60,7 @@ SettingsManager = {
 
 	UpdatedBiterWaveSpawnLocationsSetting = function()
 		local debugging = false
+		if ModSettingsDict.biterWaveSpawnLocationsDict == nil then ModSettingsDict.biterWaveSpawnLocationsDict = {} end
 		local locationText = settings.global["biter-wave-spawn-locations"].value
 		if locationText == nil or locationText == "" or locationText == "{}" then
 			Utility.LogPrint("Blank or Empty Spawn Location Setting, nothing will spawn")

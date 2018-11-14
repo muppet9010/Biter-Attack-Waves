@@ -5,11 +5,11 @@ BiterWave = {
 		StateDict.nextEntriesBiterQueuedID = 1
 	end,
 		
-	AddQueuedBiters = function(quantity, spawnLocationText, sponsorName)
+	AddQueuedBiters = function(targetPlayerName, quantity, spawnLocationText, sponsorName)
 		local spawnLocationName = SpawnLocations.GetLocationNameFromText(spawnLocationText)
 		BitersQueuedDict[StateDict.nextEntriesBiterQueuedID] = {
 			completed = false,
-			fullyQueued = false,
+			targetPlayerName = targetPlayerName,
 			quantity = quantity,
 			quantityDone = 0,
 			spawnLocationName = spawnLocationName,

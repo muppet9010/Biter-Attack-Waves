@@ -66,10 +66,10 @@ GuiStyle = {
 		Normal = function(el)
 			el.style.font = "default"
 		end,
-		Normal_semibold = function(el)
+		NormalSemibold = function(el)
 			el.style.font = "default-semibold"
 		end,
-		Normal_bold = function(el)
+		NormalBold = function(el)
 			el.style.font = "default-bold"
 		end,
 	}
