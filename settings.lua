@@ -66,3 +66,17 @@ data:extend({
 		order = "1105"
 	},
 })
+
+
+
+if mods["Rampant"] ~= nil then
+	data:extend({
+		{
+			name = "biter-wave-rampant-controls-biters",
+			type = "bool-setting",
+			default_value = false,
+			setting_type = "runtime-global",
+			order = "1901"
+		},
+	})
+end
