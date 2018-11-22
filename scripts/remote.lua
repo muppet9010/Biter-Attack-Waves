@@ -4,45 +4,38 @@ Remote = {
 		remote.add_interface(
 			"BiterAttackWaves",
 			{
-				IncreaseMaxBiterWaveSize = Remote.IncreaseMaxBiterWaveSize,
-				GetBiterWaveMaxSize = Remote.GetBiterWaveMaxSize,
-				SetBiterWaveMaxSize = Remote.SetBiterWaveMaxSize,
-				AddQueuedBiters = BiterWave.AddQueuedBiters
+				FundIncreaseAttackSize = Remote.FundIncreaseAttackSize,
+				FundBiterSquad = BiterWave.FundBiterSquad,
+				FundIncreaseEvolution = Remote.FundIncreaseEvolution
 			}
 		)
 	end,
 
-	IncreaseMaxBiterWaveSize = function(amountInput)
-		amount = tonumber(amountInput)
-		if amount == nil then
-			Utility.LogPrint("Remote IncreaseMaxBiterWaveSize called with non number: " .. tostring(amountInput))
+	FundIncreaseAttackSize = function(streamerPlayerName, fundingInput, sponsorName)
+		funding = tonumber(fundingInput)
+		if funding == nil then
+			Utility.LogPrint("Remote FundIncreaseAttackSize called with non number funding amount: " .. tostring(fundingInput))
 			return
 		end
-		amount = Utility.RoundNumberToDecimalPlaces(amount, 0)
-		return BiterWave.IncreaseCurrentBiterWaveMaxSize(amount)
+		return BiterWave.FundIncreaseAttackSize(streamerPlayerName, funding, sponsorName)
 	end,
 
-	GetBiterWaveMaxSize = function()
-		return BiterWave.GetCurrentBiterWaveMaxSize()
-	end,
-
-	SetBiterWaveMaxSize = function(amountInput)
-		amount = tonumber(amountInput)
-		if amount == nil then
-			Utility.LogPrint("Remote SetCurrentBiterWaveMaxSize called with non number: " .. tostring(amountInput))
+	FundBiterSquad = function(streamerPlayerName, fundingInput, spawnLocationText, sponsorName)
+		funding = tonumber(fundingInput)
+		if funding == nil then
+			Utility.LogPrint("Remote FundBiterSquad called with non number funding amount: " .. tostring(fundingInput))
 			return
 		end
-		amount = Utility.RoundNumberToDecimalPlaces(amount, 0)
-		return BiterWave.SetCurrentBiterWaveMaxSize(amount)
+		return BiterWave.FundBiterSquad(streamerPlayerName, funding, spawnLocationText, sponsorName)
 	end,
 
-	AddQueuedBiters = function(streamerPlayerName, quantityInput, spawnLocationText, sponsorName)
-		quantity = tonumber(quantityInput)
-		if quantity == nil then
-			Utility.LogPrint("Remote AddQueuedBiters called with non number: " .. tostring(quantityInput))
+	FundIncreaseEvolution = function(streamerPlayerName, fundingInput, sponsorName)
+		funding = tonumber(fundingInput)
+		if funding == nil then
+			Utility.LogPrint("Remote FundIncreaseEvolution called with non number funding amount: " .. tostring(fundingInput))
 			return
 		end
-		return BiterWave.AddQueuedBiters(streamerPlayerName, quantity, spawnLocationText, sponsorName)
+		return Evolution.FundIncreaseEvolution(streamerPlayerName, funding, sponsorName)
 	end
 	
 }

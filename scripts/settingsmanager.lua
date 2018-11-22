@@ -1,6 +1,18 @@
 SettingsManager = {
+--[[
+biter-wave-vanilla-max-group-starting-size=Native Biter Attack Groups Starting Maximum Size
+biter-wave-vanilla-max-group-increase-quantity=Native Biter Attack Groups Growth rate
+biter-wave-vanilla-max-group-size-limit=Native Biter Attack Groups Upper Maximum Size
 
+biter-wave-rampant-controls-biters=Rampant Mod Controls Biter Waves
+biter-wave-rampant-max-group-starting-size=Rampant Biter Attack Groups Starting Maximum Size
+biter-wave-rampant-max-group-increase-quantity=Rampant Biter Attack Groups Growth rate
+biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximum Size
+]]
 	UpdateSetting = function(settingName)
+		if settingName == "biter-wave-streamer-list" or settingName == nil then
+			SettingsManager.UpdatedStreamerNameListSetting()
+		end
 		if settingName == "biter-wave-game-start-safety-seconds" or settingName == nil then
 			SettingsManager.UpdatedBiterWaveGameStartSafetySetting()
 		end
@@ -10,21 +22,46 @@ SettingsManager = {
 		if settingName == "biter-wave-player-death-safety-seconds" or settingName == nil then
 			SettingsManager.UpdatedBiterWavePlayerDeathSafetySetting()
 		end
-		if settingName == "biter-wave-minimum-size" or settingName == nil then
-			SettingsManager.UpdatedBiterWaveMinSizeSetting()
-		end
-		if settingName == "biter-wave-starting-max-size" or settingName == nil then
-			SettingsManager.UpdatedBiterWaveStartingMaxSizeSetting()
-		end
-		if settingName == "biter-wave-group-size" or settingName == nil then
-			SettingsManager.UpdatedBiterWaveGroupMaxSizeSetting()
-		end
-		if settingName == "biter-wave-groups-width" or settingName == nil then
-			SettingsManager.UpdatedBiterWaveMaxGroupsWideSetting()
-		end
 		if settingName == "biter-wave-spawn-locations" or settingName == nil then
 			SettingsManager.UpdatedBiterWaveSpawnLocationsSetting()
 		end
+		if settingName == "biter-wave-max-squads" or settingName == nil then
+			SettingsManager.UpdatedBiterWaveMaxSquadsSetting()
+		end
+		if settingName == "biter-wave-max-units" or settingName == nil then
+			SettingsManager.UpdatedBiterWaveMaxUnitsSetting()
+		end
+		if settingName == "biter-wave-increase-quantity-cost" or settingName == nil then
+			SettingsManager.UpdatedBiterWaveIncreaseCostSetting()
+		end
+		if settingName == "biter-wave-evolution-scale" or settingName == nil then
+			SettingsManager.UpdatedBiterEvolutionSetting()
+		end
+		
+		if settingName == "biter-squad-starting-units" or settingName == nil then
+			SettingsManager.UpdatedBiterSquadStartingUnitsSetting()
+		end
+		if settingName == "biter-squad-max-units" or settingName == nil then
+			SettingsManager.UpdatedBiterSquadMaxUnitsSetting()
+		end
+		if settingName == "biter-squad-increase-quantity" or settingName == nil then
+			SettingsManager.UpdatedBiterSquadIncreaseQuantitySetting()
+		end
+		if settingName == "biter-squad-cost" or settingName == nil then
+			SettingsManager.UpdatedBiterSquadCostSetting()
+		end
+		
+		if settingName == "biter-group-max-units" or settingName == nil then
+			SettingsManager.UpdatedBiterWaveGroupMaxSizeSetting()
+		end
+		if settingName == "biter-group-deployment-width" or settingName == nil then
+			SettingsManager.UpdatedBiterWaveMaxGroupsWideSetting()
+		end
+	end,
+	
+	UpdatedStreamerNameListSetting = function()
+		ModSettingsDict.streamerNameListString = settings.global["biter-wave-streamer-list"].value
+		Streamer.UpdateStreamerNameList()
 	end,
 
 	UpdatedBiterWaveGameStartSafetySetting = function()
@@ -39,47 +76,53 @@ SettingsManager = {
 		ModSettingsDict.biterWavePlayerDeathSafetyTicks = tonumber(settings.global["biter-wave-player-death-safety-seconds"].value) * 60
 	end,
 
-	UpdatedBiterWaveMinSizeSetting = function()
-		ModSettingsDict.biterWaveMinSize = tonumber(settings.global["biter-wave-minimum-size"].value)
-	end,
-
-	UpdatedBiterWaveStartingMaxSizeSetting = function()
-		local biterWaveStartingMaxSize = tonumber(settings.global["biter-wave-starting-max-size"].value)
-		if ModSettingsDict.currentBiterWaveMaxSize == nil then
-			ModSettingsDict.currentBiterWaveMaxSize = biterWaveStartingMaxSize
-		end
-	end,
-
 	UpdatedBiterWaveGroupMaxSizeSetting = function()
-		ModSettingsDict.biterWaveGroupMaxSize = tonumber(settings.global["biter-wave-group-max-size"].value)
+		ModSettingsDict.biterWaveGroupMaxSize = tonumber(settings.global["biter-group-max-units"].value)
 	end,
 
 	UpdatedBiterWaveMaxGroupsWideSetting = function()
-		ModSettingsDict.biterWaveMaxGroupsWide = tonumber(settings.global["biter-wave-max-groups-wide"].value)
+		ModSettingsDict.biterWaveMaxGroupsWide = tonumber(settings.global["biter-group-deployment-width"].value)
 	end,
 
 	UpdatedBiterWaveSpawnLocationsSetting = function()
-		local debugging = false
-		if ModSettingsDict.biterWaveSpawnLocationsDict == nil then ModSettingsDict.biterWaveSpawnLocationsDict = {} end
-		local locationText = settings.global["biter-wave-spawn-locations"].value
-		if locationText == nil or locationText == "" or locationText == "{}" then
-			Utility.LogPrint("Blank or Empty Spawn Location Setting, nothing will spawn")
-			return
-		end
-		if debugging then Utility.LogPrint(locationText) end
-		local success, spawnLocations = pcall(function() return loadstring("return " .. locationText )() end)
-		if debugging then Utility.LogPrint(tostring(success) .. " : " .. tostring(spawnLocations)) end
-		if not success or type(spawnLocations) ~= "table" or Utility.GetTableLength(spawnLocations) == 0 then
-			Utility.LogPrint("Spawn Locations Failed To Process, mod setting not valid table")
-			return
-		end
-		local success, spawnLocations, errorMessage = SpawnLocations.StandardiseNamedLocationsTable(spawnLocations)
-		if not success then
-			Utility.LogPrint("Spawn Locations Failed To Process: " .. errorMessage)
-			return
-		end
-		if debugging then Utility.LogPrint(Utility.TableContentsToString(spawnLocations, "spawnLocations")) end
-		ModSettingsDict.biterWaveSpawnLocationsDict = spawnLocations
-	end
+		ModSettingsDict.biterWaveSpawnLocationString = settings.global["biter-wave-spawn-locations"].value
+		SpawnLocations.UpdateLocationsList()
+	end,
 
+	UpdatedBiterWaveMaxSquadsSetting = function()
+		ModSettingsDict.biterWaveMaxSquads = tonumber(settings.global["biter-wave-max-squads"].value)
+	end,
+
+	UpdatedBiterWaveMaxUnitsSetting = function()
+		ModSettingsDict.biterWaveMaxUnits = tonumber(settings.global["biter-wave-max-units"].value)
+	end,
+
+	UpdatedBiterWaveIncreaseCostSetting = function()
+		ModSettingsDict.biterWaveIncreaseCost = tonumber(settings.global["biter-wave-increase-quantity-cost"].value)
+		BiterWave.UpdatedCurrentBiterSquadSize()
+	end,
+
+	UpdatedBiterEvolutionSetting = function()
+		ModSettingsDict.biterWaveEvolutionString = settings.global["biter-wave-evolution-scale"].value
+		Evolution.UpdateEvolutionScale()
+	end,
+
+	UpdatedBiterSquadStartingUnitsSetting = function()
+		ModSettingsDict.biterSquadStartingUnits = tonumber(settings.global["biter-squad-starting-units"].value)
+		BiterWave.UpdatedCurrentBiterSquadSize()
+	end,
+
+	UpdatedBiterSquadMaxUnitsSetting = function()
+		ModSettingsDict.biterSquadMaxUnits = tonumber(settings.global["biter-squad-max-units"].value)
+		BiterWave.UpdatedCurrentBiterSquadSize()
+	end,
+
+	UpdatedBiterSquadIncreaseQuantitySetting = function()
+		ModSettingsDict.biterSquadIncreaseQuantity = tonumber(settings.global["biter-squad-increase-quantity"].value)
+		BiterWave.UpdatedCurrentBiterSquadSize()
+	end,
+
+	UpdatedBiterSquadCostSetting = function()
+		ModSettingsDict.biterSquadCost = tonumber(settings.global["biter-squad-cost"].value)
+	end
 }

@@ -1,4 +1,16 @@
 data:extend({
+
+	{
+		name = "biter-wave-streamer-list",
+		type = "string-setting",
+		default_value = "{ 'Streamer 1 Name', 'Streamer 2 Name'}",
+		allow_blank = false,
+		setting_type = "runtime-global",
+		order = "0001"
+	},
+
+
+
 	{
 		name = "biter-wave-game-start-safety-seconds",
 		type = "int-setting",
@@ -23,10 +35,51 @@ data:extend({
 		setting_type = "runtime-global",
 		order = "1003"
 	},
+	{
+		name = "biter-wave-max-squads",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		setting_type = "runtime-global",
+		order = "1004"
+	},
+	{
+		name = "biter-wave-max-units",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		setting_type = "runtime-global",
+		order = "1005"
+	},
+	{
+		name = "biter-wave-spawn-locations",
+		type = "string-setting",
+		default_value = "{}",
+		allow_blank = false,
+		setting_type = "runtime-global",
+		order = "1006"
+	},
+	{
+		name = "biter-wave-increase-quantity-cost",
+		type = "double-setting",
+		default_value = 1,
+		minimum_value = 0.000001,
+		setting_type = "runtime-global",
+		order = "1007"
+	},
+	{
+		name = "biter-wave-evolution-scale",
+		type = "string-setting",
+		default_value = "",
+		allow_blank = true,
+		setting_type = "runtime-global",
+		order = "1008"
+	},
+	
 	
 	
 	{
-		name = "biter-wave-minimum-size",
+		name = "biter-squad-starting-units",
 		type = "int-setting",
 		default_value = 0,
 		minimum_value = 0,
@@ -34,37 +87,76 @@ data:extend({
 		order = "1101"
 	},
 	{
-		name = "biter-wave-starting-max-size",
+		name = "biter-squad-max-units",
 		type = "int-setting",
-		default_value = -1,
-		minimum_value = -1,
+		default_value = 0,
+		minimum_value = 0,
 		setting_type = "runtime-global",
 		order = "1102"
 	},
 	{
-		name = "biter-wave-group-max-size",
+		name = "biter-squad-increase-quantity",
 		type = "int-setting",
-		default_value = 100,
-		minimum_value = 10,
+		default_value = 0,
+		minimum_value = 0,
 		setting_type = "runtime-global",
 		order = "1103"
 	},
 	{
-		name = "biter-wave-max-groups-wide",
-		type = "int-setting",
-		default_value = -1,
-		minimum_value = -1,
+		name = "biter-squad-cost",
+		type = "double-setting",
+		default_value = 1,
+		minimum_value = 0.000001,
 		setting_type = "runtime-global",
 		order = "1104"
 	},
+	
+	
+	
 	{
-		name = "biter-wave-spawn-locations",
-		type = "string-setting",
-		default_value = "{}",
-		allow_balnk = false,
+		name = "biter-group-max-units",
+		type = "int-setting",
+		default_value = 100,
+		minimum_value = 10,
 		setting_type = "runtime-global",
-		order = "1105"
+		order = "1201"
 	},
+	{
+		name = "biter-group-deployment-width",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		setting_type = "runtime-global",
+		order = "1202"
+	},
+	
+	
+	
+	{
+		name = "biter-wave-vanilla-max-group-starting-size",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		setting_type = "runtime-global",
+		order = "1802"
+	},
+	{
+		name = "biter-wave-vanilla-max-group-increase-quantity",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		setting_type = "runtime-global",
+		order = "1803"
+	},
+	{
+		name = "biter-wave-vanilla-max-group-size-limit",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		setting_type = "runtime-global",
+		order = "1804"
+	}
+	
 })
 
 
@@ -78,5 +170,29 @@ if mods["Rampant"] ~= nil then
 			setting_type = "runtime-global",
 			order = "1901"
 		},
+		{
+			name = "biter-wave-rampant-max-group-starting-size",
+			type = "int-setting",
+			default_value = 0,
+			minimum_value = 0,
+			setting_type = "runtime-global",
+			order = "1902"
+		},
+		{
+			name = "biter-wave-rampant-max-group-increase-quantity",
+			type = "int-setting",
+			default_value = 0,
+			minimum_value = 0,
+			setting_type = "runtime-global",
+			order = "1903"
+		},
+		{
+			name = "biter-wave-rampant-max-group-size-limit",
+			type = "int-setting",
+			default_value = 0,
+			minimum_value = 0,
+			setting_type = "runtime-global",
+			order = "1904"
+		}
 	})
 end

@@ -1,7 +1,43 @@
 SpawnLocations = {
 
+	--[[
+	StateDict.biterWaveSpawnLocationsDict = {
+		name (string) = {
+			name (string)
+			position (position)
+			facing (Constants.BiterWaveFacingDict)
+		}
+	}
+	]]
+
+	CreateGlobals = function()
+		if StateDict.biterWaveSpawnLocationsDict == nil then StateDict.biterWaveSpawnLocationsDict = {} end
+	end,
+	
+	UpdateLocationsList = function()
+		local debugging = false
+		local locationText = ModSettingsDict.biterWaveSpawnLocationString
+		if locationText == nil or locationText == "" or locationText == "{}" then
+			Utility.LogPrint("Blank or Empty Spawn Location Setting, nothing will spawn")
+			return
+		end
+		if debugging then Utility.LogPrint(locationText) end
+		local success, spawnLocations = pcall(function() return loadstring("return " .. locationText )() end)
+		if debugging then Utility.LogPrint(tostring(success) .. " : " .. tostring(spawnLocations)) end
+		if not success or type(spawnLocations) ~= "table" or Utility.GetTableLength(spawnLocations) == 0 then
+			Utility.LogPrint("Spawn Locations Failed To Process, mod setting not valid table")
+			return
+		end
+		local success, spawnLocations, errorMessage = SpawnLocations.StandardiseNamedLocationsTable(spawnLocations)
+		if not success then
+			Utility.LogPrint("Spawn Locations Failed To Process: " .. errorMessage)
+			return
+		end
+		if debugging then Utility.LogPrint(Utility.TableContentsToString(spawnLocations, "spawnLocations")) end
+		StateDict.biterWaveSpawnLocationsDict = spawnLocations
+	end,
+
 	StandardiseNamedLocationsTable = function(spawnLocations)
-		local errorMessage = nil
 		local cleanSpawnLocations = {}
 		for name, data in pairs(spawnLocations) do
 			if name == nil or name == "" then
@@ -45,6 +81,7 @@ SpawnLocations = {
 			end
 			
 			cleanSpawnLocations[newName] = {
+				name = newName,
 				position = {x = newPositionX, y = newPositionY},
 				facing = newFacing
 			}
@@ -56,7 +93,7 @@ SpawnLocations = {
 		local location = nil
 		if locationText == nil or locationText == "" then
 			game.print("WARNING - No biter spawn supplied in newly queued biters")
-		elseif ModSettingsDict.biterWaveSpawnLocationsDict[locationText] == nil then
+		elseif StateDict.biterWaveSpawnLocationsDict[locationText] == nil then
 			game.print("WARNING - Biters targeting non existent location in newly queued biters")
 		end
 		return locationText

@@ -6,38 +6,44 @@ require("scripts/gui")
 require("scripts/settingsmanager")
 require("scripts/biterwave")
 require("scripts/spawnlocations")
+require("scripts/evolution")
+require("scripts/streamer")
 
 require("scripts/remote")
 
 
 
-OnStartup = function()
+local OnStartup = function()
 	Globals.CreateGlobals()
 	SettingsManager.UpdateSetting(nil)
 	Remote.Register()
 end
 
-OnLoad = function()
+local OnLoad = function()
 	Globals.ReferenceGlobals()
 	Remote.Register()
 end
 
-OnSettingChanged = function(event)
+local OnSettingChanged = function(event)
 	SettingsManager.UpdateSetting(event.setting)
 end
 
-OnPlayerCreated = function(event)
+local OnPlayerCreated = function(event)
 	local player = game.players[event.player_index]
 	Gui.PlayerRefreshAll(player)
 end
 
-OnPlayerJoinedGame = function(event)
+local OnPlayerJoinedGame = function(event)
 	local player = game.players[event.player_index]
 	Gui.PlayerRefreshAll(player)
 end
 
-OnGuiClicked = function(event)
+local OnGuiClicked = function(event)
 	Gui.PlayerGuiClicked(event)
+end
+
+local On10Second = function()
+	Evolution.ApplyFundedEvolution()
 end
 
 
@@ -47,6 +53,7 @@ script.on_init(OnStartup)
 script.on_load(OnLoad)
 script.on_event(defines.events.on_runtime_mod_setting_changed, OnSettingChanged)
 script.on_configuration_changed(OnStartup)
+script.on_nth_tick(600, function() On10Second() end)
 script.on_event({defines.events.on_player_created}, OnPlayerCreated)
 script.on_event({defines.events.on_player_joined_game}, OnPlayerJoinedGame)
 script.on_event({defines.events.on_gui_click}, OnGuiClicked)

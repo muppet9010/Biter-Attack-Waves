@@ -64,16 +64,16 @@ GuiBiterQueueManager = {
 		GuiStyle.Font.NormalBold(headerState)
 		local headerTargetPlayerName = GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_header_targetPlayerName", caption = {"description.biterWaveQueueManagerTableTargetPlayer-caption"}}
 		GuiStyle.Font.NormalBold(headerTargetPlayerName)
-		local headerQuantity = GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_header_quantity", caption = {"description.biterWaveQueueManagerTableQuantity-caption"}, tooltip={"description.biterWaveQueueManagerTableQuantity-tooltip"}}
-		GuiStyle.Font.NormalBold(headerQuantity)
+		local headerFunding = GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_header_quantity", caption = {"description.biterWaveQueueManagerTableFunding-caption"}, tooltip={"description.biterWaveQueueManagerTableFunding-tooltip"}}
+		GuiStyle.Font.NormalBold(headerFunding)
 		local headerSpawnLocationName = GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_header_spawnLocationName", caption = {"description.biterWaveQueueManagerTableSpawnLocation-caption"}}
 		GuiStyle.Font.NormalBold(headerSpawnLocationName)
 		local headerSponsorName = GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_header_sponsorName", caption = {"description.biterWaveQueueManagerTableSponsor-caption"}}
 		GuiStyle.Font.NormalBold(headerSponsorName)
-		for id, queuedDetails in pairs(BitersQueuedDict) do
+		for id, queuedDetails in pairs(StateDict.fundedBitersQueuedDict) do
 			GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_" .. id .. "_state", caption = tostring(queuedDetails.completed)}
 			GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_" .. id .. "_targetPlayerName", caption = tostring(queuedDetails.targetPlayerName)}
-			GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_" .. id .. "_quantity", caption = tostring(queuedDetails.quantity)}
+			GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_" .. id .. "_quantity", caption = tostring(queuedDetails.funding) .. "(" .. tostring(queuedDetails.fundingDone) .. ")"}
 			GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_" .. id .. "_spawnLocationName", caption = tostring(queuedDetails.spawnLocationName)}
 			GuiPlayerElemDict[player.index]["biterWaveQueueManagerQueueTable"].add{type = "label", name = "biterWaveQueue_" .. id .. "_sponsorName", caption = tostring(queuedDetails.sponsorName)}
 		end
