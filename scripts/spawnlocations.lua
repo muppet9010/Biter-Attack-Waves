@@ -8,6 +8,8 @@ SpawnLocations = {
 			facing (Constants.BiterWaveFacingDict)
 		}
 	}
+	
+	StateDict.biterWaveSpawnLocationNameArray = {name}
 	]]
 
 	CreateGlobals = function()
@@ -35,6 +37,7 @@ SpawnLocations = {
 		end
 		if debugging then Utility.LogPrint(Utility.TableContentsToString(spawnLocations, "spawnLocations")) end
 		StateDict.biterWaveSpawnLocationsDict = spawnLocations
+		StateDict.biterWaveSpawnLocationNameArray = Utility.TableKeyToArray(spawnLocations)
 	end,
 
 	StandardiseNamedLocationsTable = function(spawnLocations)
@@ -90,13 +93,15 @@ SpawnLocations = {
 	end,
 
 	GetLocationNameFromText = function(locationText)
-		local location = nil
 		if locationText == nil or locationText == "" then
 			game.print("WARNING - No biter spawn supplied in newly queued biters")
+			return nil
 		elseif StateDict.biterWaveSpawnLocationsDict[locationText] == nil then
 			game.print("WARNING - Biters targeting non existent location in newly queued biters")
+			return nil
+		else
+			return locationText
 		end
-		return locationText
 	end
 
 }

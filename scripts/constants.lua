@@ -21,6 +21,8 @@ Constants = {
 		orange = {r = 0.93, g = 0.46, b = 0, a = 1},
 		darkorange = {r = 0.8, g = 0.4, b = 0, a = 1},
 		dullyellow = {r = 0.85, g = 0.64, b = 0.18, a = 1},
-	}
+	},
+	
+	randomLocation = "random"
 	
 }

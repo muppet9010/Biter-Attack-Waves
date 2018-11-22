@@ -1,7 +1,13 @@
 Streamer = {
 
+	--[[
+	StateDict.streamerNameDict = {
+		name (string) = true
+	}
+	]]
+
 	CreateGlobals = function()
-		if StateDict.streamerNameList == nil then StateDict.streamerNameList = {} end
+		if StateDict.streamerNameDict == nil then StateDict.streamerNameDict = {} end
 	end,
 	
 	UpdateStreamerNameList = function()
@@ -18,22 +24,36 @@ Streamer = {
 			Utility.LogPrint("Streamer Name List Failed To Process, mod setting not valid table")
 			return
 		end
-		local success, streamerNameList, errorMessage = Streamer.StandardiseNameListTable(streamerNameList)
+		local success, streamerNameDict, errorMessage = Streamer.StandardiseNameListTable(streamerNameList)
 		if not success then
 			Utility.LogPrint("Evolution Scale Failed To Process: " .. errorMessage)
 			return
 		end
-		if debugging then Utility.LogPrint(Utility.TableContentsToString(streamerNameList, "streamerNameList")) end
-		StateDict.streamerNameList = streamerNameList
+		if debugging then Utility.LogPrint(Utility.TableContentsToString(streamerNameDict, "streamerNameList")) end
+		StateDict.streamerNameDict = streamerNameDict
 	end,
 	
 	StandardiseNameListTable = function(streamerNameList)
+		local streamerNameDict = {}
 		for i, name in pairs(streamerNameList) do
 			if name == nil or name == "" then
 				return false, nil, "entry " .. tostring(i) .. " name blank: ".. tostring(name)
 			end
+			streamerNameDict[name] = true
 		end
-		return true, streamerNameList
+		return true, streamerNameDict
+	end,
+
+	GetStreamNameFromText = function(streamerText, contextLogText)
+		if streamerText == nil or streamerText == "" then
+			game.print("WARNING - No streamer name supplied by " .. contextLogText)
+			return nil
+		elseif StateDict.streamerNameDict[streamerText] == nil then
+			game.print("WARNING - invalid streamer name supplied by " .. contextLogText)
+			return nil
+		else
+			return streamerText
+		end
 	end
 
 }

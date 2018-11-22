@@ -122,3 +122,11 @@ Utility.RoundNumberToDecimalPlaces = function(num, numDecimalPlaces)
 	end
 	return result
 end
+
+Utility.TableKeyToArray = function(aTable)
+	local newArray = {}
+	for key, value in pairs(aTable)
+		table.insert(newArray, key)
+	end
+	return newArray
+end

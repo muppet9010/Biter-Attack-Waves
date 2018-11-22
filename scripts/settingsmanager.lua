@@ -66,14 +66,17 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 
 	UpdatedBiterWaveGameStartSafetySetting = function()
 		ModSettingsDict.biterWaveGameStartSafetyTicks = tonumber(settings.global["biter-wave-game-start-safety-seconds"].value) * 60
+		BiterWave.CalculateNextWaveDispatchTiming()
 	end,
 
 	UpdatedBiterWaveCooldownSetting = function()
 		ModSettingsDict.biterWaveCooldownTicks = tonumber(settings.global["biter-wave-cooldown-seconds"].value) * 60
+		BiterWave.CalculateNextWaveDispatchTiming()
 	end,
 
 	UpdatedBiterWavePlayerDeathSafetySetting = function()
 		ModSettingsDict.biterWavePlayerDeathSafetyTicks = tonumber(settings.global["biter-wave-player-death-safety-seconds"].value) * 60
+		BiterWave.CalculateNextWaveDispatchTiming()
 	end,
 
 	UpdatedBiterWaveGroupMaxSizeSetting = function()
@@ -99,7 +102,7 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 
 	UpdatedBiterWaveIncreaseCostSetting = function()
 		ModSettingsDict.biterWaveIncreaseCost = tonumber(settings.global["biter-wave-increase-quantity-cost"].value)
-		BiterWave.UpdatedCurrentBiterSquadSize()
+		BiterWave.UpdateBiterSizes()
 	end,
 
 	UpdatedBiterEvolutionSetting = function()
@@ -109,17 +112,17 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 
 	UpdatedBiterSquadStartingUnitsSetting = function()
 		ModSettingsDict.biterSquadStartingUnits = tonumber(settings.global["biter-squad-starting-units"].value)
-		BiterWave.UpdatedCurrentBiterSquadSize()
+		BiterWave.UpdateBiterSizes()
 	end,
 
 	UpdatedBiterSquadMaxUnitsSetting = function()
 		ModSettingsDict.biterSquadMaxUnits = tonumber(settings.global["biter-squad-max-units"].value)
-		BiterWave.UpdatedCurrentBiterSquadSize()
+		BiterWave.UpdateBiterSizes()
 	end,
 
 	UpdatedBiterSquadIncreaseQuantitySetting = function()
 		ModSettingsDict.biterSquadIncreaseQuantity = tonumber(settings.global["biter-squad-increase-quantity"].value)
-		BiterWave.UpdatedCurrentBiterSquadSize()
+		BiterWave.UpdateBiterSizes()
 	end,
 
 	UpdatedBiterSquadCostSetting = function()

@@ -79,9 +79,10 @@ Evolution = {
 
 	FundIncreaseEvolution = function(streamerPlayerName, funding, sponsorName)
 		local id = Utility.GetMaxKey(StateDict.fundedEvolutionDict) + 1
+		local streamerName = Streamer.GetStreamNameFromText(streamerPlayerName, " Fund Increase Evolution")
 		table.insert(StateDict.fundedEvolutionDict, {
 			id = id,
-			streamerPlayerName = streamerPlayerName,
+			streamerPlayerName = streamerName,
 			funding = funding,
 			sponsorName = sponsorName
 		})
@@ -90,10 +91,10 @@ Evolution = {
 	
 	CalculateFundedEvolution = function()
 		if StateDict.currentFundedEvolution == -1 then return end
-		local debugging = true
+		local debugging = false
 		local sharedEvolution = 0
 		
-		for i, streamerPlayerName in pairs(StateDict.streamerNameList) do
+		for streamerPlayerName, placeHolder in pairs(StateDict.streamerNameDict) do
 			local totalFunding = Evolution.GetFundingTotalForStreamer(streamerPlayerName)
 			local remainingFunding = totalFunding
 			local playerEvolution = 0
