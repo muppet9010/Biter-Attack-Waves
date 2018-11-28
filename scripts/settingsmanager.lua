@@ -4,7 +4,6 @@ biter-wave-vanilla-max-group-starting-size=Native Biter Attack Groups Starting M
 biter-wave-vanilla-max-group-increase-quantity=Native Biter Attack Groups Growth rate
 biter-wave-vanilla-max-group-size-limit=Native Biter Attack Groups Upper Maximum Size
 
-biter-wave-rampant-controls-biters=Rampant Mod Controls Biter Waves
 biter-wave-rampant-max-group-starting-size=Rampant Biter Attack Groups Starting Maximum Size
 biter-wave-rampant-max-group-increase-quantity=Rampant Biter Attack Groups Growth rate
 biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximum Size
@@ -37,6 +36,9 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 		if settingName == "biter-wave-evolution-scale" or settingName == nil then
 			SettingsManager.UpdatedBiterEvolutionSetting()
 		end
+		if settingName == "biter-wave-target-position" or settingName == nil then
+			SettingsManager.UpdatedBiterWaveTargetPosition()
+		end
 		
 		if settingName == "biter-squad-starting-units" or settingName == nil then
 			SettingsManager.UpdatedBiterSquadStartingUnitsSetting()
@@ -56,6 +58,10 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 		end
 		if settingName == "biter-group-deployment-width" or settingName == nil then
 			SettingsManager.UpdatedBiterWaveMaxGroupsWideSetting()
+		end
+		
+		if settingName == "biter-wave-rampant-controls-biters" or settingName == nil then
+			SettingsManager.UpdatedRampantControlBiterWaveSetting()
 		end
 	end,
 	
@@ -127,5 +133,14 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 
 	UpdatedBiterSquadCostSetting = function()
 		ModSettingsDict.biterSquadCost = tonumber(settings.global["biter-squad-cost"].value)
+	end,
+	
+	UpdatedRampantControlBiterWaveSetting = function()
+		ModSettingsDict.rampantControlBiterWave = settings.global["biter-wave-rampant-controls-biters"].value
+	end,
+	
+	UpdatedBiterWaveTargetPosition = function()
+		ModSettingsDict.biterWaveTargetPositionString = settings.global["biter-wave-target-position"].value
+		BiterWave.UpdateTargetPosition()
 	end
 }

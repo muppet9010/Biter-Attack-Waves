@@ -75,6 +75,14 @@ data:extend({
 		setting_type = "runtime-global",
 		order = "1008"
 	},
+	{
+		name = "biter-wave-target-position",
+		type = "string-setting",
+		default_value = "{0,0}",
+		allow_blank = false,
+		setting_type = "runtime-global",
+		order = "1008"
+	},
 	
 	
 	

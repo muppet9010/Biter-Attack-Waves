@@ -8,7 +8,6 @@ require("scripts/biterwave")
 require("scripts/spawnlocations")
 require("scripts/evolution")
 require("scripts/streamer")
-require("scripts/bitersquad")
 
 require("scripts/remote")
 
@@ -44,6 +43,7 @@ local OnGuiClicked = function(event)
 end
 
 local On1Second = function()
+	StateDict.currentTick = game.tick
 	Evolution.ApplyFundedEvolution()
 	BiterWave.CheckBiterWaveDispatchTiming()
 end

@@ -31,6 +31,9 @@ BiterWave = {
 		if StateDict.lastWaveDispatchedTick == nil then StateDict.lastWaveDispatchedTick = 0 end
 		if StateDict.nextWaveDispatchTick == nil then StateDict.nextWaveDispatchTick = 0 end
 		if StateDict.playerDeathsThisWave == nil then StateDict.playerDeathsThisWave = 0 end
+		StateDict.enemyForce = game.forces["enemy"]
+		if StateDict.biterGroups == nil then StateDict.biterGroups = {} end
+		if StateDict.biterWaveTargetPosition == nil then StateDict.biterWaveTargetPosition = {x = 0, y = 0} end
 	end,
 		
 	FundBiterSquad = function(targetPlayerName, funding, spawnLocationText, sponsorName)
@@ -96,11 +99,11 @@ BiterWave = {
 	end,
 	
 	CheckBiterWaveDispatchTiming = function()
-		if StateDict.nextWaveDispatchTick == nil or StateDict.nextWaveDispatchTick > game.tick then return end
+		if StateDict.nextWaveDispatchTick == nil or StateDict.nextWaveDispatchTick > StateDict.currentTick then return end
 		
 		BiterWave.CreateBiterWave()
 		
-		StateDict.lastWaveDispatchedTick = game.tick
+		StateDict.lastWaveDispatchedTick = StateDict.currentTick
 		StateDict.playerDeathsThisWave = 0
 		BiterWave.CalculateNextWaveDispatchTiming()
 	end,
@@ -116,44 +119,37 @@ BiterWave = {
 	end,
 	
 	CreateBiterWave = function()
-		local biterLocationSquads = BiterWave.GetBiterLocationSquadsForWave()
+		local rawBiterLocationSquads = BiterWave.GetWholelyFundedBiterSquadsByLocation()
+		local standardisedBiterLocationSquads = BiterWave.StandardiseBiterLocationSquads(rawBiterLocationSquads)
 	
-		for location, squadCount in pairs(biterLocationSquads) do
-		--TODO
-		--[[
-			_surface = game.player.surface
-			local maxBiterGroups = math.ceil(biterCount / ModSettingsDict.biterWaveGroupMaxSize)
+		local surface = game.surface[1]
+		local triggerTick = StateDict.currentTick + 120
+		for location, squadCount in pairs(standardisedBiterLocationSquads) do
+			local biterCount = squadCount * StateDict.biterSquadCurrentSize
+			local biterGroupMax = math.ceil(biterCount / ModSettingsDict.biterWaveGroupMaxSize)
 			local biterWaveGroupsWide = ModSettingsDict.biterWaveMaxGroupsWide
-			if maxBiterGroups < biterWaveGroupsWide then
-				biterWaveGroupsWide = maxBiterGroups
+			if biterGroupMax < biterWaveGroupsWide then
+				biterWaveGroupsWide = biterGroupMax
 			end
-			local biterGroupSize = math.ceil(biterCount / maxBiterGroups)
+			local biterGroupSize = math.ceil(biterCount / biterGroupMax)
 			local biterGroupTileWidth = 20
 			local biterGroupTileLength = math.sqrt(ModSettingsDict.biterWaveGroupMaxSize)
-			local groupStartPos = FindBiterGatherPoint()
-			if maxBiterGroups > 20 then
+			if biterGroupMax > 20 then
 				game.print("too many attack groups will lag the game - stopped")
 				return
 			end
 			
 			local waveWidthCount = 0
 			local waveDepthCount = 0
-			local triggerTick = game.tick + _monitorBiterGroupsCheckTickDelay
-			CalculateBiterSelectionProbabilities()
-			for i=1, maxBiterGroups do
-				local thisGroupStartPos = {
-					x = groupStartPos.x - (waveDepthCount * 6 * biterGroupTileLength),
-					y = groupStartPos.y + (waveWidthCount * biterGroupTileWidth)
-				}
-				
-				local biterGroup = CreateBiterGroup(thisGroupStartPos)
-				local groupMembers = SpawnBitersInGroup(biterGroup, thisGroupStartPos, biterGroupSize)
-				if _usingRampantAI then
+			for i=1, biterGroupMax do
+				local thisGroupStartPos = BiterWave.GetSpecificGroupLocationForGeneralLocation(StateDict.biterWaveSpawnLocationsDict[location].position, StateDict.biterWaveSpawnLocationsDict[location].facing, waveDepthCount, biterGroupTileLength, waveWidthCount, biterWaveGroupsWide, biterGroupTileWidth)				
+				local biterGroup = BiterWave.CreateBiterGroup(thisGroupStartPos)
+				local groupMembers = BiterWave.SpawnBitersInGroup(biterGroup, thisGroupStartPos, biterGroupSize)
+				if ModSettingsDict.rampantControlBiterWave then
 					remote.call("rampant", "registerUnitGroup", biterGroup)
 				else
-					local finalAttackAreaTarget = FindAttackAreaTarget(waveWidthCount)
-					BiterGroupAttackMoveArea(biterGroup, FindMoveTarget(waveWidthCount, waveDepthCount), finalAttackAreaTarget)
-					table.insert(BiterGroups, {triggerTick = triggerTick, group = biterGroup, startPos = thisGroupStartPos, members = groupMembers})
+					BiterWave.BiterGroupAttackMoveArea(biterGroup, BiterWave.GetSpecificGroupLocationForGeneralLocation(StateDict.biterWaveTargetPosition, StateDict.biterWaveSpawnLocationsDict[location].facing, waveDepthCount, biterGroupTileLength, waveWidthCount, biterWaveGroupsWide, biterGroupTileWidth), StateDict.biterWaveTargetPosition)
+					table.insert(StateDict.biterGroups, {triggerTick = triggerTick, group = biterGroup, startPos = thisGroupStartPos, members = groupMembers})
 				end
 				
 				waveWidthCount = waveWidthCount + 1
@@ -162,15 +158,13 @@ BiterWave = {
 					waveDepthCount = waveDepthCount + 1
 				end
 			end
-			if not _usingRampantAI then
-				script.on_nth_tick(triggerTick, function() MonitorBiterGroups() end)
+			if not ModSettingsDict.rampantControlBiterWave then
+				script.on_nth_tick(triggerTick, BiterWave.MonitorBiterGroups)
 			end
-		]]
 		end
 	end,
 	
-	GetBiterLocationSquadsForWave = function()
-		--get how many biter squads are to be in this wave and mark them as done on the funded biters list
+	GetWholelyFundedBiterSquadsByLocation = function()
 		local biterSquadsCount = 0
 		local partialBiterSquadFunding = {} -- {funding dict Id = amount}
 		local partialFundingAmount = 0
@@ -182,7 +176,7 @@ BiterWave = {
 				if whollyFunded > 0 then
 					for whollyFundedCount=1, whollyFunded do
 						if BiterWave.BiterSquadCountBelowLimits(biterSquadsCount) then
-							local location = fundEntity.spawnLocationName
+							local location = fundingEntry.spawnLocationName
 							if location == nil then location = Constants.randomLocation
 							completeBiterSquads[location] = completeBiterSquads[location] + 1
 							biterSquadsCount = biterSquadsCount + 1
@@ -221,13 +215,16 @@ BiterWave = {
 				if not BiterWave.BiterSquadCountBelowLimits(biterSquadsCount) then break end
 			end
 		end
-		
-		--make random to join location with largest squad number, otherwise all squads to a randomly selected location
+		return completeBiterSquads
+	end,
+	
+	StandardiseBiterLocationSquads = function(completeBiterSquads)
 		local largestLocationName = nil
 		local largestLocationCount = 0
 		for name, count in pairs(completeBiterSquads) do
 			if name ~= Constants.randomLocation and count > largestLocationCount then
 				largestLocationName = name
+				largestLocationCount = count
 			end
 		end
 		if largestLocationName ~= nil then
@@ -238,9 +235,8 @@ BiterWave = {
 			completeBiterSquads[largestLocationName] = biterSquadsCount
 			completeBiterSquads[Constants.randomLocation] = nil
 		end
-		
 		return completeBiterSquads
-	end,
+	end
 	
 	BiterSquadCountBelowLimits = function(biterSquadsCount)
 		if biterSquadsCount >= ModSettingsDict.biterWaveMaxSquads then return false end
@@ -248,11 +244,162 @@ BiterWave = {
 		return true
 	end,
 	
-	FindBiterGatherPoint = function()
-		--TODO
-		--get the location for the squads
-	end
+	GetSpecificGroupLocationForGeneralLocation = function(position, facing, waveDepthCount, biterGroupTileLength, waveWidthCount, maxWaveWidth, biterGroupTileWidth)
+		local forwards = 0 - (waveDepthCount * 6 * biterGroupTileLength)
+		local right = (0 - (maxWaveWidth/2) + waveWidthCount) * biterGroupTileWidth
+		local offset = Utility.GetNormalisedOffsetForOrientationOffset(facing, forwards, right)
+		local newPos = {
+			x = position.x + offset.x,
+			y = position.y + offset.y 
+		}
+		return newPos
+	end,
+
+	FindAttackAreaTarget = function(location, groupCount)
+		local groupTargetBasePos = StateDict.biterWaveTargetPosition
+		local facing = StateDict.biterWaveSpawnLocationsDict[location].facing
+		local offset = Utility.GetNormalisedOffsetForOrientationOffset(facing, groupCount, 0)
+		return {
+			x = groupTargetBasePos.x + offset.x,
+			y = groupTargetBasePos.y + offset.y
+		}
+	end,
+	
+	CreateBiterGroup = function(groupPosition)
+		return _surface.create_unit_group{position = groupPosition, force = StateDict.enemyForce}
+	end,
+
+	SpawnBitersInGroup = function(unitGroup, spawnCenterPos, groupSize)
+		local members = {}
+		for i=1, groupSize do
+			local biterType = Evolution.GetBiterType()
+			local spawnPos = _surface.find_non_colliding_position(biterType, spawnCenterPos, 0, 1)
+			local biter = _surface.create_entity{
+				name = biterType,
+				position = spawnPos,
+				force = StateDict.enemyForce
+			}
+			if not biter then
+				Utility.LogPrint("creation of biter" .. i .. "failed")
+			else
+				unitGroup.add_member(biter)
+				table.insert(members, biter)
+			end
+		end
+		return members
+	end,
+		
+	GetBiterGroupAttackAreaCommand = function(targetPos)
+		return {
+			type = defines.command.attack_area,
+			destination = targetPos,
+			radius = 10,
+			distraction = defines.distraction.by_anything
+		}
+	end,
+
+	GetBiterGroupMoveCommand = function(moveToPos)
+		return {
+			type = defines.command.go_to_location,
+			destination = moveToPos,
+			distraction = defines.distraction.by_anything
+		}
+	end,
+
+	GetBiterGroupAttackSpawnCommand = function()
+		return {
+			type = defines.command.attack_area,
+			destination = {x = 0, y = 0},
+			radius = 100,
+			distraction = defines.distraction.by_anything
+		}
+	end,
+
+	BiterGroupAttackMoveArea = function(unitGroup, moveToPos, targetPos)
+		local command = {
+			type = defines.command.compound,
+			structure_type = defines.compound_command.return_last,
+			commands = {
+				BiterWave.GetBiterGroupMoveCommand(moveToPos),
+				BiterWave.GetBiterGroupAttackAreaCommand(targetPos),
+				BiterWave.GetBiterGroupAttackSpawnCommand()
+			}
+		}
+		unitGroup.set_command(command)
+		unitGroup.start_moving()
+	end,
+
+	MonitorBiterGroups = function()
+		script.on_nth_tick(StateDict.currentTick, nil)
+		for i, groupDetails in ipairs(StateDict.biterGroups) do
+			if groupDetails.triggerTick <= StateDict.currentTick then
+				if not groupDetails.group.valid or groupDetails.group.state ~= defines.group_state.moving then
+					BiterWave.RecreateGroupAndAttackSpawn(groupDetails)
+				end
+				StateDict.biterGroups[i] = nil
+			end
+		end
+	end,
+
+	RecreateGroupAndAttackSpawn = function(groupDetails)
+		local groupSize = #groupDetails.members
+		local groupStartingPos = groupDetails.startPos
+		if groupDetails.group.valid then
+			groupDetails.group.destroy()
+		end
+		for _, member in pairs(groupDetails.members) do
+			member.destroy()
+		end
+		
+		local biterGroup = BiterWave.CreateBiterGroup(groupStartingPos)
+		BiterWave.SpawnBitersInGroup(biterGroup, groupStartingPos, groupSize)
+		biterGroup.set_command(BiterWave.GetBiterGroupAttackSpawnCommand())
+		biterGroup.start_moving()
+	end,
+
+	UpdateTargetPosition = function()
+		local debugging = false
+		local positionText = ModSettingsDict.biterWaveTargetPositionString
+		if positionText == nil or positionText == "" or positionText == "{}" then
+			Utility.LogPrint("Blank or Empty Biter Wave Target Position Setting, nothing will spawn")
+			return
+		end
+		if debugging then Utility.LogPrint(positionText) end
+		local success, position = pcall(function() return loadstring("return " .. positionText )() end)
+		if debugging then Utility.LogPrint(tostring(success) .. " : " .. tostring(position)) end
+		if not success or type(position) ~= "table" or Utility.GetTableLength(position) == 0 then
+			Utility.LogPrint("Biter Wave Target Position Failed To Process, mod setting not valid table")
+			return
+		end
+		local success, position, errorMessage = BiterWave.StandardiseTargetPositionTable(position)
+		if not success then
+			Utility.LogPrint("Biter Wave Target Position Failed To Process: " .. errorMessage)
+			return
+		end
+		if debugging then Utility.LogPrint(Utility.TableContentsToString(position, "position")) end
+		StateDict.biterWaveTargetPosition = position
+	end,
+	
+	StandardiseTargetPositionTable = function(position)
+		local cleanPosition = {}
+		for key, value in pairs(position) do
+			if key == "x" or key == 1 then
+				cleanPosition.x = value
+			elseif key == "y" or key == 2 then
+				cleanPosition.y = value
+			else
+				return false, nil, "entry " .. tostring(key) .. " invalid value: ".. tostring(value)
+			end
+		end
+		
+		if cleanPosition.x == nil then
+			return false, nil, "no x coordinate extracted from setting"
+		end
+		if cleanPosition.y == nil then
+			return false, nil, "no y coordinate extracted from setting"
+		end
+		
+		return true, cleanPosition
+	end,
+	
 }
-
-
-garry.hawksworth@icloud.com

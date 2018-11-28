@@ -24,6 +24,7 @@ Globals = {
 		if global.GuiPlayerElemDict == nil then global.GuiPlayerElemDict = {} end
 		Globals.ReferenceGlobals()
 		
+		StateDict.currentTick = game.tick --TODO: not sure this is a good idea for update frequency vs usage
 		Streamer.CreateGlobals()
 		BiterWave.CreateGlobals()
 		SpawnLocations.CreateGlobals()

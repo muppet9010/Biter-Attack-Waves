@@ -21,6 +21,9 @@ Evolution = {
 		if StateDict.fundedEvolutionDict == nil then StateDict.fundedEvolutionDict = {} end
 		if StateDict.evolutionScaleArray == nil then StateDict.evolutionScaleArray = {} end
 		if StateDict.currentFundedEvolution == nil then StateDict.currentFundedEvolution = 0 end
+		if StateDict.currentEvolutionProbabilities == nil then StateDict.currentEvolutionProbabilities = {} end
+		if StateDict.currentEvolutionProbabilitiesTop == nil then StateDict.currentEvolutionProbabilitiesTop = {} end
+		if StateDict.currentEvolution == nil then StateDict.currentEvolution = 0 end
 	end,
 	
 	UpdateEvolutionScale = function()
@@ -139,6 +142,75 @@ Evolution = {
 	ApplyFundedEvolution = function()
 		if StateDict.currentFundedEvolution == -1 then return end
 		game.forces.enemy.evolution_factor = StateDict.currentFundedEvolution
+	end,
+	
+	CalculateBiterSelectionProbabilities = function()
+		StateDict.currentEvolutionProbabilities = {}
+		StateDict.currentEvolutionProbabilitiesTop = {}
+		StateDict.currentEvolution = StateDict.enemyForce.evolution_factor
+		CalculateSpecificBiterSelectionProbabilities("biter-spawner")
+		CalculateSpecificBiterSelectionProbabilities("spitter-spawner")
+	end,
+	
+	CalculateSpecificBiterSelectionProbabilities = function(spawnerType)
+		local debug = false
+		if debug then Utility.LogPrint(spawnerType) end
+		local rawUnitProbs = game.entity_prototypes[spawnerType].result_units
+		
+		StateDict.currentEvolutionProbabilitiesTop[spawnerType] = 0
+		StateDict.currentEvolutionProbabilities[spawnerType] = {}
+		for unitIndex, possibility in pairs(rawUnitProbs) do
+			local startSpawnPointIndex = nil
+			for spawnPointIndex, spawnPoint in pairs(possibility.spawn_points) do
+				if spawnPoint.evolution_factor <= StateDict.currentEvolution then
+					startSpawnPointIndex = spawnPointIndex
+				end
+			end
+			if startSpawnPointIndex ~= nil then
+				local startSpawnPoint = possibility.spawn_points[startSpawnPointIndex]
+				local endSpawnPoint = nil
+				if possibility.spawn_points[startSpawnPointIndex + 1] ~= nil then
+					endSpawnPoint = possibility.spawn_points[startSpawnPointIndex + 1]
+				else
+					endSpawnPoint = {evolution_factor = 1.0, weight = startSpawnPoint.weight}
+				end
+				
+				local weight = nil
+				if startSpawnPoint.evolution_factor ~= endSpawnPoint.evolution_factor then
+					local evoRange = endSpawnPoint.evolution_factor - startSpawnPoint.evolution_factor
+					local weightRange = endSpawnPoint.weight - startSpawnPoint.weight
+					local evoRangeMultiplier = (StateDict.currentEvolution - startSpawnPoint.evolution_factor) / evoRange
+					weight = (weightRange * evoRangeMultiplier) + startSpawnPoint.weight
+				else
+					weight = startSpawnPoint.weight
+				end
+				local probability = _currentEvolutionProbabilitiesTop[spawnerType] + weight
+				if debug then Utility.LogPrint(possibility.unit .. ": " .. weight .. "(" .. probability .. ")") end
+				StateDict.currentEvolutionProbabilities[spawnerType][probability] = possibility.unit
+				StateDict.currentEvolutionProbabilitiesTop[spawnerType] = probability
+			end
+		end
+	end,
+	
+	GetBiterType = function()
+		local debug = false
+		local spawnerType = "biter-spawner"
+		if math.random(0,1) == 1 then spawnerType = "spitter-spawner" end
+		if debug then Utility.LogPrint(spawnerType) end
+		
+		local randNum = nil
+		while(true) do
+			randNum = math.random()
+			if randNum <= StateDict.currentEvolutionProbabilitiesTop[spawnerType] then break end
+		end
+		if debug then Utility.LogPrint("randNum: " .. randNum) end
+		
+		for topChance, unit in pairs(StateDict.currentEvolutionProbabilities[spawnerType]) do
+			if debug then Utility.LogPrint("check " .. unit) end
+			if topChance > 0 and topChance >= randNum then
+				return unit
+			end
+		end
 	end
 	
 }

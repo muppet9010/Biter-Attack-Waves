@@ -1,10 +1,10 @@
 Constants = {
 
 	BiterWaveFacingDict = {
-		north = true,
-		east = true,
-		south = true,
-		west = true
+		north = "north",
+		east = "east",
+		south = "south",
+		west = "west"
 	},
 
 	--http://www.december.com/html/spec/colorcodes.html
