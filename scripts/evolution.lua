@@ -127,6 +127,7 @@ Evolution = {
 		StateDict.currentFundedEvolution = sharedEvolution
 		if debugging then Utility.LogPrint("sharedEvolution: " .. sharedEvolution) end
 		Evolution.ApplyFundedEvolution()
+		Evolution.CalculateBiterSelectionProbabilities()
 	end,
 	
 	GetFundingTotalForStreamer = function(streamerPlayerName)
@@ -148,8 +149,8 @@ Evolution = {
 		StateDict.currentEvolutionProbabilities = {}
 		StateDict.currentEvolutionProbabilitiesTop = {}
 		StateDict.currentEvolution = StateDict.enemyForce.evolution_factor
-		CalculateSpecificBiterSelectionProbabilities("biter-spawner")
-		CalculateSpecificBiterSelectionProbabilities("spitter-spawner")
+		Evolution.CalculateSpecificBiterSelectionProbabilities("biter-spawner")
+		Evolution.CalculateSpecificBiterSelectionProbabilities("spitter-spawner")
 	end,
 	
 	CalculateSpecificBiterSelectionProbabilities = function(spawnerType)
@@ -184,7 +185,8 @@ Evolution = {
 				else
 					weight = startSpawnPoint.weight
 				end
-				local probability = _currentEvolutionProbabilitiesTop[spawnerType] + weight
+				
+				local probability = StateDict.currentEvolutionProbabilitiesTop[spawnerType] + weight
 				if debug then Utility.LogPrint(possibility.unit .. ": " .. weight .. "(" .. probability .. ")") end
 				StateDict.currentEvolutionProbabilities[spawnerType][probability] = possibility.unit
 				StateDict.currentEvolutionProbabilitiesTop[spawnerType] = probability

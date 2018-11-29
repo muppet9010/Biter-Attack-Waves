@@ -125,26 +125,26 @@ end
 
 Utility.TableKeyToArray = function(aTable)
 	local newArray = {}
-	for key, value in pairs(aTable)
+	for key, value in pairs(aTable) do
 		table.insert(newArray, key)
 	end
 	return newArray
 end
 
-Utility.GetNormalisedOffsetForOrientationOffset(facing, forwards, right)
-	local offest = {x=nil, y=nil}
+Utility.GetNormalisedOffsetForOrientationOffset = function(facing, forwards, right)
+	local offset = {x=nil, y=nil}
 	if tonumber(forwards) == nil then error("Utility.GetNormalisedOffsetForOrientationOffset - invalid forwards supplied: " .. tostring(forwards)) end
 	if tonumber(right) == nil then error("Utility.GetNormalisedOffsetForOrientationOffset - invalid right supplied: " .. tostring(right)) end
-	if facing == "north" or facing == BiterWaveFacingDict.north then
+	if facing == "north" or facing == Constants.BiterWaveFacingDict.north then
 		offset.x = 0 + right
 		offset.y = 0 + forwards
-	elseif facing == "south" or facing == BiterWaveFacingDict.south then
+	elseif facing == "south" or facing == Constants.BiterWaveFacingDict.south then
 		offset.x = 0 - right
 		offset.y = 0 - forwards
-	elseif facing == "east" or facing == BiterWaveFacingDict.east then
+	elseif facing == "east" or facing == Constants.BiterWaveFacingDict.east then
 		offset.x = 0 + forwards
 		offset.y = 0 - right
-	elseif facing == "west" or facing == BiterWaveFacingDict.west then
+	elseif facing == "west" or facing == Constants.BiterWaveFacingDict.west then
 		offset.x = 0 - forwards
 		offset.y = 0 + right
 	else

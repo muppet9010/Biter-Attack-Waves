@@ -43,7 +43,7 @@ local OnGuiClicked = function(event)
 end
 
 local On1Second = function()
-	StateDict.currentTick = game.tick
+	Globals.UpdateGameTick()
 	Evolution.ApplyFundedEvolution()
 	BiterWave.CheckBiterWaveDispatchTiming()
 end
@@ -59,7 +59,7 @@ script.on_init(OnStartup)
 script.on_load(OnLoad)
 script.on_event(defines.events.on_runtime_mod_setting_changed, OnSettingChanged)
 script.on_configuration_changed(OnStartup)
-script.on_nth_tick(60, function() On1Second() end)
+script.on_nth_tick(60, On1Second)
 script.on_event({defines.events.on_player_created}, OnPlayerCreated)
 script.on_event({defines.events.on_player_joined_game}, OnPlayerJoinedGame)
 script.on_event({defines.events.on_gui_click}, OnGuiClicked)

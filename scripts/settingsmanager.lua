@@ -136,6 +136,7 @@ biter-wave-rampant-max-group-size-limit=Rampant Biter Attack Groups Upper Maximu
 	end,
 	
 	UpdatedRampantControlBiterWaveSetting = function()
+		if settings.global["biter-wave-rampant-controls-biters"] == nil then return end
 		ModSettingsDict.rampantControlBiterWave = settings.global["biter-wave-rampant-controls-biters"].value
 	end,
 	
